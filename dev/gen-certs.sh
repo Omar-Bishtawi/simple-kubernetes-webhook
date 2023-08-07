@@ -27,6 +27,12 @@ kubectl create secret tls simple-kubernetes-webhook-tls \
 
 echo
 echo ">> MutatingWebhookConfiguration caBundle:"
-cat ca.crt | base64 | fold
+export ca_cert=$(cat ca.crt | base64 | fold)
+
+yq e -i '.webhooks[0].clientConfig.caBundle = env(ca_cert)' \
+  ./manifests/cluster-config/mutating.config.yaml
+
+yq e -i '.webhooks[0].clientConfig.caBundle = env(ca_cert)' \
+  ./manifests/cluster-config/validating.config.yaml
 
 rm ca.crt ca.key ca.srl server.crt server.csr server.key
